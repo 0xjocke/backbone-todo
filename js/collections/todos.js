@@ -1,37 +1,47 @@
-var app = app || {};
 
-var TodoList = Backbone.Collection.extend({
-	// reference to this collections model
-	model : app.Todo,
+  // js/collections/todos.js
 
-	// save all of the todo items under the "todo-backbone" namespace
-	localStorage: new Backbone.LocalStorage('todos-backbone'),
+  var app = app || {};
 
-	//Filter to only show finished items
-	completed: function() {
-		return this.filter(function(todo){
-			return todo.get('completed');
-		});
-	},
+  // Todo Collection
+  // ---------------
 
-	//Filter to only show items not finished
+  // The collection of todos is backed by *localStorage* instead of a remote
+  // server.
+  var TodoList = Backbone.Collection.extend({
 
-	remaining: function(){
-		return this.without.apply(this, this.completed());
-	},
+    // Reference to this collection's model.
+    model: app.Todo,
 
-	// This genrated the next order number for new todos.
-	nextOrder: function(){
-		if (!this.length) {
-			return 1;
-		}
-		return this.last().get('order') + 1;
-	},
+    // Save all of the todo items under the `"todos-backbone"` namespace.
+    localStorage: new Backbone.LocalStorage('todos-backbone'),
 
-	// Todos are sorted by thier original insert order
-	comparator: function(){
-		return todo.get('order');
-	}
-});
+    // Filter down the list of all todo items that are finished.
+    completed: function() {
+      return this.filter(function( todo ) {
+        return todo.get('completed');
+      });
+    },
 
-app.Todos = new TodoList();
+    // Filter down the list to only todo items that are still not finished.
+    remaining: function() {
+      return this.without.apply( this, this.completed() );
+    },
+
+    // We keep the Todos in sequential order, despite being saved by unordered
+    // GUID in the database. This generates the next order number for new items.
+    nextOrder: function() {
+      if ( !this.length ) {
+        return 1;
+      }
+      return this.last().get('order') + 1;
+    },
+
+    // Todos are sorted by their original insertion order.
+    comparator: function( todo ) {
+      return todo.get('order');
+    }
+  });
+
+  // Create our global collection of **Todos**.
+  app.Todos = new TodoList();
